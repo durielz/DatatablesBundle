@@ -286,6 +286,8 @@ class DatatableQuery
                         $this->addSearchOrderColumn($key, $array[0], $array[1]);
                     }
                 }
+            } elseif (in_array($data, $this->virtualColumns)) {
+                $this->addSearchOrderColumn($key, $this->tableName, $data);
             } else {
                 $this->orderColumns[] = null;
                 $this->searchColumns[] = null;
@@ -604,7 +606,11 @@ class DatatableQuery
             for ($i = 0; $i < $counter; $i++) {
                 $columnIdx = (integer) $this->requestParams['order'][$i]['column'];
                 $requestColumn = $this->requestParams['columns'][$columnIdx];
-
+				
+				if(in_array(explode(".", $this->orderColumns[$columnIdx])[1], $this->virtualColumns)) {
+				    $columnIdx = $columnIdx - 1;
+				}
+				
                 if ('true' == $requestColumn['orderable']) {
                     $this->qb->addOrderBy(
                         $this->orderColumns[$columnIdx],
